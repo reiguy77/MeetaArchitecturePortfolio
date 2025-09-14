@@ -1,0 +1,84 @@
+<div class="home-container">
+    <div class="geometric-artwork" (mousemove)="onMouseMove($event)">
+      <svg
+        class="geometric-svg"
+        viewBox="0 0 800 600"
+        xmlns="http://www.w3.org/2000/svg">
+
+        <!-- Background Grid -->
+        <defs>
+          <pattern id="grid" width="20" height="20" patternUnits="userSpaceOnUse">
+            <path d="M 20 0 L 0 0 0 20" fill="none" stroke="#e0e0e0" stroke-width="0.5"/>
+          </pattern>
+        </defs>
+        <rect width="100%" height="100%" fill="url(#grid)" />
+
+        <!-- Central Cluster -->
+        <g class="central-cluster" [style.transform]="getTransform('central')">
+          <polygon points="300,250 320,230 340,250 330,270 310,270" fill="black"/>
+          <polygon points="320,230 340,210 360,230 350,250 340,250" fill="black"/>
+          <polygon points="340,250 360,230 380,250 370,270 350,270" fill="black"/>
+        </g>
+
+        <!-- Main Structural Lines -->
+        <g class="main-lines" [style.transform]="getTransform('main')">
+          <line x1="330" y1="270" x2="200" y2="400" stroke="black" stroke-width="4"/>
+          <line x1="350" y1="270" x2="500" y2="150" stroke="black" stroke-width="4"/>
+          <line x1="320" y1="230" x2="150" y2="100" stroke="black" stroke-width="4"/>
+          <line x1="360" y1="230" x2="600" y2="200" stroke="black" stroke-width="4"/>
+          <line x1="340" y1="250" x2="400" y2="450" stroke="black" stroke-width="4"/>
+        </g>
+
+        <!-- Secondary Black Shapes -->
+        <g class="secondary-shapes" [style.transform]="getTransform('secondary')">
+          <polygon points="200,400 220,380 240,400 230,420 210,420" fill="black"/>
+          <polygon points="500,150 520,130 540,150 530,170 510,170" fill="black"/>
+          <polygon points="150,100 170,80 190,100 180,120 160,120" fill="black"/>
+          <polygon points="600,200 620,180 640,200 630,220 610,220" fill="black"/>
+          <polygon points="400,450 420,430 440,450 430,470 410,470" fill="black"/>
+        </g>
+
+        <!-- Radiating Thin Lines -->
+        <g class="radiating-lines" [style.transform]="getTransform('radiating')">
+          <!-- Lines from central cluster -->
+          <line x1="330" y1="250" x2="100" y2="50" stroke="black" stroke-width="1"/>
+          <line x1="330" y1="250" x2="50" y2="200" stroke="black" stroke-width="1"/>
+          <line x1="330" y1="250" x2="150" y2="350" stroke="black" stroke-width="1"/>
+          <line x1="330" y1="250" x2="250" y2="500" stroke="black" stroke-width="1"/>
+          <line x1="330" y1="250" x2="450" y2="100" stroke="black" stroke-width="1"/>
+          <line x1="330" y1="250" x2="550" y2="300" stroke="black" stroke-width="1"/>
+          <line x1="330" y1="250" x2="700" y2="150" stroke="black" stroke-width="1"/>
+          <line x1="330" y1="250" x2="750" y2="400" stroke="black" stroke-width="1"/>
+
+          <!-- Lines from secondary points -->
+          <line x1="200" y1="400" x2="50" y2="500" stroke="black" stroke-width="1"/>
+          <line x1="200" y1="400" x2="100" y2="550" stroke="black" stroke-width="1"/>
+          <line x1="500" y1="150" x2="650" y2="50" stroke="black" stroke-width="1"/>
+          <line x1="500" y1="150" x2="700" y2="100" stroke="black" stroke-width="1"/>
+          <line x1="150" y1="100" x2="50" y2="50" stroke="black" stroke-width="1"/>
+          <line x1="150" y1="100" x2="100" y2="20" stroke="black" stroke-width="1"/>
+          <line x1="600" y1="200" x2="750" y2="100" stroke="black" stroke-width="1"/>
+          <line x1="600" y1="200" x2="700" y2="300" stroke="black" stroke-width="1"/>
+          <line x1="400" y1="450" x2="300" y2="550" stroke="black" stroke-width="1"/>
+          <line x1="400" y1="450" x2="500" y2="550" stroke="black" stroke-width="1"/>
+        </g>
+
+        <!-- Additional geometric elements -->
+        <g class="additional-elements" [style.transform]="getTransform('additional')">
+          <polygon points="100,50 120,30 140,50 130,70 110,70" fill="black"/>
+          <polygon points="650,50 670,30 690,50 680,70 660,70" fill="black"/>
+          <polygon points="50,500 70,480 90,500 80,520 60,520" fill="black"/>
+          <polygon points="750,100 770,80 790,100 780,120 760,120" fill="black"/>
+
+          <!-- Small rectangular elements -->
+          <rect x="250" y="80" width="8" height="20" fill="black"/>
+          <rect x="450" y="320" width="8" height="20" fill="black"/>
+          <rect x="150" y="300" width="8" height="20" fill="black"/>
+          <rect x="550" y="400" width="8" height="20" fill="black"/>
+        </g>
+
+        <!-- Artist signature -->
+        <text x="650" y="580" font-family="serif" font-size="14" fill="black">MEETA SHAH</text>
+      </svg>
+    </div>
+  </div>
