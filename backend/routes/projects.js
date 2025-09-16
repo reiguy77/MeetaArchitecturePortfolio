@@ -1,0 +1,373 @@
+const express = require('express');
+const multer = require('multer');
+const path = require('path');
+const fs = require('fs');
+const { v4: uuidv4 } = require('uuid');
+const router = express.Router();
+const { ProjectCategory, Project, ProjectImage } = require('../models');
+const { authenticateToken } = require('../middleware/auth');
+
+// Configure multer for file uploads
+const storage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    cb(null, 'uploads/images/');
+  },
+  filename: (req, file, cb) => {
+    const uniqueName = `${uuidv4()}${path.extname(file.originalname)}`;
+    cb(null, uniqueName);
+  }
+});
+
+const upload = multer({
+  storage: storage,
+  limits: {
+    fileSize: 10 * 1024 * 1024 // 10MB limit
+  },
+  fileFilter: (req, file, cb) => {
+    const allowedTypes = /jpeg|jpg|png|gif|webp/;
+    const extname = allowedTypes.test(path.extname(file.originalname).toLowerCase());
+    const mimetype = allowedTypes.test(file.mimetype);
+
+    if (mimetype && extname) {
+      return cb(null, true);
+    } else {
+      cb(new Error('Only image files are allowed!'));
+    }
+  }
+});
+
+// Get all project categories with their projects and images (public)
+router.get('/categories', async (req, res) => {
+  try {
+    const categories = await ProjectCategory.findAll({
+      include: [{
+        model: Project,
+        as: 'projects',
+        include: [{
+          model: ProjectImage,
+          as: 'images'
+        }]
+      }],
+      order: [
+        ['id', 'ASC'],
+        [{ model: Project, as: 'projects' }, 'id', 'ASC'],
+        [{ model: Project, as: 'projects' }, { model: ProjectImage, as: 'images' }, 'id', 'ASC']
+      ]
+    });
+    res.json(categories);
+  } catch (error) {
+    console.error('Error fetching categories:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+
+// Create a new project (admin only)
+router.post("/", authenticateToken, async (req, res) => {
+  try {
+    const { name, description, role, constructionCompleted, details, categoryId } = req.body;
+
+    if (!name || !description || !role || !constructionCompleted || !details || !categoryId) {
+      return res.status(400).json({ error: "All fields are required" });
+    }
+
+    // Verify category exists
+    const category = await ProjectCategory.findByPk(categoryId);
+    if (!category) {
+      return res.status(400).json({ error: "Invalid category ID" });
+    }
+
+    const project = await Project.create({
+      name,
+      description,
+      role,
+      constructionCompleted,
+      details,
+      categoryId
+    });
+
+    // Fetch the created project with relations
+    const createdProject = await Project.findByPk(project.id, {
+      include: [
+        {
+          model: ProjectCategory,
+          as: "category"
+        },
+        {
+          model: ProjectImage,
+          as: "images"
+        }
+      ]
+    });
+
+    res.status(201).json(createdProject);
+  } catch (error) {
+    console.error("Error creating project:", error);
+    res.status(500).json({ error: "Internal server error" });
+  }
+});
+// Get a specific project by ID with its images (public)
+router.get('/:id', async (req, res) => {
+  try {
+    const projectId = parseInt(req.params.id);
+    const project = await Project.findByPk(projectId, {
+      include: [
+        {
+          model: ProjectCategory,
+          as: 'category'
+        },
+        {
+          model: ProjectImage,
+          as: 'images'
+        }
+      ]
+    });
+
+    if (!project) {
+      return res.status(404).json({ error: 'Project not found' });
+    }
+
+    res.json(project);
+  } catch (error) {
+    console.error('Error fetching project:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+// Update a project (admin only)
+router.put('/:id', authenticateToken, async (req, res) => {
+  try {
+    const projectId = parseInt(req.params.id);
+    const { name, description, role, constructionCompleted, details, categoryId } = req.body;
+
+    const project = await Project.findByPk(projectId);
+    if (!project) {
+      return res.status(404).json({ error: 'Project not found' });
+    }
+
+    await project.update({
+      name,
+      description,
+      role,
+      constructionCompleted,
+      details,
+      categoryId
+    });
+
+    // Fetch updated project with relations
+    const updatedProject = await Project.findByPk(projectId, {
+      include: [
+        {
+          model: ProjectCategory,
+          as: 'category'
+        },
+        {
+          model: ProjectImage,
+          as: 'images'
+        }
+      ]
+    });
+
+    res.json(updatedProject);
+  } catch (error) {
+    console.error('Error updating project:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+// Add a new image to a project with file upload (admin only)
+router.post('/:id/images', authenticateToken, upload.single('image'), async (req, res) => {
+  try {
+    const projectId = parseInt(req.params.id);
+    const { alt, caption } = req.body;
+
+    const project = await Project.findByPk(projectId);
+    if (!project) {
+      return res.status(404).json({ error: 'Project not found' });
+    }
+
+    if (!req.file) {
+      return res.status(400).json({ error: 'No image file provided' });
+    }
+
+    // Create the image record with the uploaded file path
+    const image = await ProjectImage.create({
+      src: `/uploads/images/${req.file.filename}`,
+      alt: alt || req.file.originalname,
+      caption: caption || '',
+      projectId
+    });
+
+    res.json(image);
+  } catch (error) {
+    console.error('Error adding image:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+// Update an image (text fields only, admin only)
+router.put('/images/:imageId', authenticateToken, async (req, res) => {
+  try {
+    const imageId = parseInt(req.params.imageId);
+    const { src, alt, caption } = req.body;
+
+    const image = await ProjectImage.findByPk(imageId);
+    if (!image) {
+      return res.status(404).json({ error: 'Image not found' });
+    }
+
+    await image.update({
+      src,
+      alt,
+      caption
+    });
+
+    res.json(image);
+  } catch (error) {
+    console.error('Error updating image:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+// Update an image with optional file upload (admin only)
+router.put('/images/:imageId/file', authenticateToken, upload.single('image'), async (req, res) => {
+  try {
+    const imageId = parseInt(req.params.imageId);
+    const { alt, caption } = req.body;
+
+    const image = await ProjectImage.findByPk(imageId);
+    if (!image) {
+      return res.status(404).json({ error: 'Image not found' });
+    }
+
+    let src = image.src;
+
+    // If a new file is uploaded, update the src and delete the old file
+    if (req.file) {
+      // Delete the old file if it exists
+      if (image.src && image.src.startsWith('/uploads/')) {
+        const oldFilePath = path.join(__dirname, '..', image.src);
+        try {
+          if (fs.existsSync(oldFilePath)) {
+            fs.unlinkSync(oldFilePath);
+            console.log(`Deleted old file: ${oldFilePath}`);
+          }
+        } catch (fileError) {
+          console.error('Error deleting old file:', fileError);
+        }
+      }
+
+      src = `/uploads/images/${req.file.filename}`;
+    }
+
+    await image.update({
+      src,
+      alt: alt || image.alt,
+      caption: caption || image.caption
+    });
+
+    res.json(image);
+  } catch (error) {
+    console.error('Error updating image file:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+// Delete an image (admin only)
+router.delete('/images/:imageId', authenticateToken, async (req, res) => {
+  try {
+    const imageId = parseInt(req.params.imageId);
+
+    const image = await ProjectImage.findByPk(imageId);
+    if (!image) {
+      return res.status(404).json({ error: 'Image not found' });
+    }
+
+    // Delete the physical file if it exists
+    if (image.src && image.src.startsWith('/uploads/')) {
+      const filePath = path.join(__dirname, '..', image.src);
+      try {
+        if (fs.existsSync(filePath)) {
+          fs.unlinkSync(filePath);
+          console.log(`Deleted file: ${filePath}`);
+        }
+      } catch (fileError) {
+        console.error('Error deleting file:', fileError);
+        // Continue with database deletion even if file deletion fails
+      }
+    }
+
+    await image.destroy();
+    res.json({ message: 'Image deleted successfully' });
+  } catch (error) {
+    console.error('Error deleting image:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+// Get all projects (public)
+router.get('/', async (req, res) => {
+  try {
+    const projects = await Project.findAll({
+      include: [
+        {
+          model: ProjectCategory,
+          as: 'category'
+        },
+        {
+          model: ProjectImage,
+          as: 'images'
+        }
+      ],
+      order: [['id', 'ASC']]
+    });
+    res.json(projects);
+  } catch (error) {
+    console.error('Error fetching projects:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+
+// Delete a project (admin only)
+router.delete("/:id", authenticateToken, async (req, res) => {
+  try {
+    const projectId = parseInt(req.params.id);
+
+    const project = await Project.findByPk(projectId, {
+      include: [{
+        model: ProjectImage,
+        as: "images"
+      }]
+    });
+
+    if (!project) {
+      return res.status(404).json({ error: "Project not found" });
+    }
+
+    // Delete all associated images and their files
+    for (const image of project.images) {
+      if (image.src && image.src.startsWith("/uploads/")) {
+        const filePath = path.join(__dirname, "..", image.src);
+        try {
+          if (fs.existsSync(filePath)) {
+            fs.unlinkSync(filePath);
+            console.log(`Deleted file: ${filePath}`);
+          }
+        } catch (fileError) {
+          console.error("Error deleting file:", fileError);
+          // Continue with database deletion even if file deletion fails
+        }
+      }
+    }
+
+    // Delete the project (this will cascade delete the images due to foreign key constraints)
+    await project.destroy();
+
+    res.json({ message: "Project deleted successfully" });
+  } catch (error) {
+    console.error("Error deleting project:", error);
+    res.status(500).json({ error: "Internal server error" });
+  }
+});
+module.exports = router;

@@ -1,0 +1,329 @@
+<div class="project-gallery">
+  <!-- Loading State -->
+  <div *ngIf="loading" class="loading-state">
+    <div class="loading-spinner"></div>
+    <p>Loading project...</p>
+  </div>
+
+  <!-- Error State -->
+  <div *ngIf="error && !loading" class="error-state">
+    <h3>Oops! Something went wrong</h3>
+    <p>{{error}}</p>
+  </div>
+
+  <!-- Main Content -->
+  <div *ngIf="!loading && !error && project">
+    <!-- Edit Mode Toggle -->
+    @if(adminService.isAdmin$ | async) {
+    <div class="edit-controls">
+      <button
+        class="edit-toggle-btn me-2"
+        (click)="toggleEditMode()"
+        [class.active]="editMode">
+        {{ editMode ? 'Cancel Edit' : 'Edit Project' }}
+      </button>
+      <button class="edit-toggle-btn " (click)="deleteProject()">Delete Project</button>
+    </div>
+
+
+    <!-- Project Edit Form -->
+    <div *ngIf="editMode" class="edit-form">
+      <h3>Edit Project Details</h3>
+      <form (ngSubmit)="saveProject()">
+        <div class="form-group">
+          <label for="projectName">Project Name</label>
+          <input
+            type="text"
+            id="projectName"
+            [(ngModel)]="editForm.name"
+            name="name"
+            required>
+        </div>
+
+        <div class="form-group">
+          <label for="projectDescription">Description</label>
+          <textarea
+            id="projectDescription"
+            [(ngModel)]="editForm.description"
+            name="description"
+            rows="3"
+            required></textarea>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label for="projectRole">Role</label>
+            <input
+              type="text"
+              id="projectRole"
+              [(ngModel)]="editForm.role"
+              name="role"
+              required>
+          </div>
+
+          <div class="form-group">
+            <label for="projectYear">Construction Completed</label>
+            <input
+              type="text"
+              id="projectYear"
+              [(ngModel)]="editForm.constructionCompleted"
+              name="constructionCompleted"
+              required>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="projectCategory">Category</label>
+          <select
+            id="projectCategory"
+            [(ngModel)]="editForm.categoryId"
+            name="categoryId"
+            required>
+            <option value="">Select Category</option>
+            <option *ngFor="let category of projectCategories" [value]="category.id">
+              {{ category.name }}
+            </option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label for="projectDetails">Project Details</label>
+          <textarea
+            id="projectDetails"
+            [(ngModel)]="editForm.details"
+            name="details"
+            rows="4"
+            required></textarea>
+        </div>
+
+        <div class="form-actions">
+          <button type="submit" class="save-btn">Save Changes</button>
+          <button type="button" class="cancel-btn" (click)="cancelEdit()">Cancel</button>
+        </div>
+      </form>
+    </div>
+  }
+
+    <!-- Header Section -->
+    <div class="gallery-header">
+      <div class="project-info">
+        <h2>{{ title }}</h2>
+        <div class="project-meta">
+          <span class="role">{{ role }}</span>
+          <span class="year">{{ completionYear }}</span>
+        </div>
+      </div>
+      <p class="description">{{ description }}</p>
+      <div class="project-details" *ngIf="projectDetails">
+        <p>{{ projectDetails }}</p>
+      </div>
+    </div>
+
+    <!-- Image Management -->
+    <div class="image-management">
+      <div class="image-management-header">
+        <h3>Project Images</h3>
+        @if(isAdmin) {
+        <button
+          *ngIf="!addingImage"
+          class="add-image-btn"
+          (click)="startAddingImage()">
+          Add New Image
+        </button>
+        }
+      </div>
+
+      <!-- Add Image Form -->
+      <div *ngIf="addingImage" class="add-image-form">
+        <h4>Add New Image</h4>
+        <form (ngSubmit)="addImage()">
+          <div class="form-group">
+            <label for="imageFile">Select Image File</label>
+            <input
+              type="file"
+              id="imageFile"
+              accept="image/*"
+              (change)="onFileSelected($event)"
+              required>
+            <small class="file-info" *ngIf="newImageForm.file">
+              Selected: {{ newImageForm.file.name }} ({{ (newImageForm.file.size / 1024 / 1024).toFixed(2) }} MB)
+            </small>
+            <small class="file-info" *ngIf="!newImageForm.file">
+              Please select an image file (JPEG, PNG, GIF, WebP)
+            </small>
+          </div>
+
+          <div class="form-group">
+            <label for="imageAlt">Alt Text</label>
+            <input
+              type="text"
+              id="imageAlt"
+              [(ngModel)]="newImageForm.alt"
+              name="alt"
+              placeholder="Describe the image for accessibility"
+              required>
+          </div>
+
+          <div class="form-group">
+            <label for="imageCaption">Caption (Optional)</label>
+            <input
+              type="text"
+              id="imageCaption"
+              [(ngModel)]="newImageForm.caption"
+              name="caption"
+              placeholder="Image caption">
+          </div>
+
+          <div class="form-actions">
+            <button type="submit" class="save-btn" [disabled]="!newImageForm.file || !newImageForm.alt.trim()">
+              Add Image
+            </button>
+            <button type="button" class="cancel-btn" (click)="cancelAddingImage()">Cancel</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- Image Gallery -->
+    <div class="image-gallery" *ngIf="images.length > 0">
+      <div class="gallery-grid">
+        <div 
+          *ngFor="let image of images; let i = index" 
+          class="gallery-item"
+          [class.editing]="editingImage?.id === image.id">
+
+          <!-- Image Display -->
+          <div
+            *ngIf="editingImage?.id !== image.id"
+            class="image-container"
+            (click)="onImageClick(i)"
+            (keydown.enter)="onImageClick(i)"
+            tabindex="0"
+            role="button"
+            [attr.aria-label]="'View image ' + (i + 1) + ' of ' + images.length">
+            <img [src]="getImageUrl(image.src)" [alt]="image.alt" loading="lazy">
+            <div class="image-overlay">
+            </div>
+          </div>
+
+          <!-- Image Edit Form -->
+          <div *ngIf="editingImage?.id === image.id" class="image-edit-form">
+            <h4>Edit Image</h4>
+            <form (ngSubmit)="saveImage()">
+              <div class="form-group">
+                <label for="editImageSrc">Image</label>
+                <input
+                  type="file"
+                  id="imageFile"
+                  [(ngModel)]="newImageForm.file"
+                  name="file">
+              </div>
+
+              <div class="form-group">
+                <label for="editImageAlt">Alt Text</label>
+                <input
+                  type="text"
+                  id="editImageAlt"
+                  [(ngModel)]="editImageForm.alt"
+                  name="alt"
+                  required>
+              </div>
+
+              <div class="form-group">
+                <label for="editImageCaption">Caption</label>
+                <input
+                  type="text"
+                  id="editImageCaption"
+                  [(ngModel)]="editImageForm.caption"
+                  name="caption">
+              </div>
+
+              <div class="form-actions">
+                <button type="submit" class="save-btn">Save</button>
+                <button type="button" class="cancel-btn" (click)="cancelEditingImage()">Cancel</button>
+              </div>
+            </form>
+          </div>
+
+          <!-- Image Actions -->
+           @if(isAdmin) {
+          <div class="image-actions">
+            <button
+              *ngIf="editingImage?.id !== image.id"
+              class="edit-image-btn"
+              (click)="startEditingImage(image)">
+              Edit
+            </button>
+            <button
+              class="delete-image-btn"
+              (click)="deleteImage(image.id)">
+              Delete
+            </button>
+          </div>
+          }
+        </div>
+      </div>
+    </div>
+
+    <!-- No Images Message -->
+    <div *ngIf="images.length === 0" class="no-images">
+      <p>No images have been added for this project.</p>
+      @if(isAdmin) {
+      <button class="add-image-btn" (click)="startAddingImage()">Add First Image</button>
+      }
+    </div>
+  </div>
+
+  <!-- Slideshow Modal -->
+  <div
+    class="slideshow-modal"
+    *ngIf="showSlideshow"
+    (click)="closeSlideshow()"
+    (keydown)="onKeydown($event)"
+    tabindex="0">
+
+    <div class="slideshow-container" (click)="$event.stopPropagation()">
+      <!-- Close Button -->
+      <button class="close-btn" (click)="closeSlideshow()" aria-label="Close slideshow">
+        ✕
+      </button>
+
+      <!-- Navigation Buttons -->
+      <button class="nav-btn prev-btn" (click)="previousSlide()" aria-label="Previous image">
+        ‹
+      </button>
+      <button class="nav-btn next-btn" (click)="nextSlide()" aria-label="Next image">
+        ›
+      </button>
+
+      <!-- Main Image -->
+      <div class="slide-content">
+        <img
+          [src]="getImageUrl(images[currentSlideIndex]?.src ?? '')"
+          [alt]="images[currentSlideIndex]?.alt"
+          class="slide-image">
+
+        <!-- Image Caption -->
+        <div class="slide-caption" *ngIf="images[currentSlideIndex]?.caption">
+          {{ images[currentSlideIndex].caption }}
+        </div>
+      </div>
+
+      <!-- Thumbnail Navigation -->
+      <div class="thumbnail-nav" *ngIf="images.length > 1">
+        <div
+          *ngFor="let image of images; let i = index"
+          class="thumbnail"
+          [class.active]="i === currentSlideIndex"
+          (click)="currentSlideIndex = i">
+          <img [src]="getImageUrl(image.src)" [alt]="image.alt">
+        </div>
+      </div>
+
+      <!-- Slide Counter -->
+      <div class="slide-counter">
+        {{ currentSlideIndex + 1 }} / {{ images.length }}
+      </div>
+    </div>
+  </div>
+</div>

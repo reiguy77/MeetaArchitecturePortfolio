@@ -1,0 +1,4 @@
+Run at project root:
+
+rsync -av --exclude-from='.rsync-exclude' ./ reillymclaren@meeta-portfolio:/home/reillymclaren
+

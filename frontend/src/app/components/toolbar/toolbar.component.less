@@ -1,0 +1,43 @@
+.navbar {
+  width: 100%;
+  padding: 1rem 0;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+
+.nav-link {
+  color: rgba(0, 0, 0, 0.8) !important;
+  font-weight: 300;
+  margin: 0 0.5rem;
+  padding: 0.5rem 1rem !important;
+  border-radius: 4px;
+  transition: all 0.3s ease;
+  cursor: pointer;
+  text-decoration: none;
+}
+
+
+.nav-link.active {
+  color: #000 !important;
+  text-decoration: none;
+  background-color: rgba(0, 0, 0, 0.2);
+}
+
+.navbar-nav {
+  gap: 0.5rem;
+  display: flex;
+  justify-content: flex-end;
+}
+
+// Responsive adjustments
+@media (max-width: 768px) {
+  .navbar-brand {
+    font-size: 1.25rem;
+  }
+
+  .nav-link {
+    margin: 0 0.25rem;
+    padding: 0.4rem 0.8rem !important;
+    font-size: 0.9rem;
+  }
+}
