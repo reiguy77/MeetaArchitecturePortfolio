@@ -133,36 +133,175 @@
 }
 
 .intro-section {
-  padding: 6rem 0;
-  background: #f8f9fa;
+  padding: 8rem 0;
+  background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%);
+  position: relative;
+
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grain" width="100" height="100" patternUnits="userSpaceOnUse"><circle cx="25" cy="25" r="0.5" fill="%23000" opacity="0.02"/><circle cx="75" cy="75" r="0.5" fill="%23000" opacity="0.02"/></pattern></defs><rect width="100" height="100" fill="url(%23grain)"/></svg>');
+    pointer-events: none;
+  }
 
   .container {
     max-width: 1200px;
     margin: 0 auto;
     padding: 0 2rem;
+    position: relative;
+    z-index: 1;
   }
 
-  .intro-content {
-    max-width: 800px;
+  .about-wrapper {
+    max-width: 1000px;
     margin: 0 auto;
+  }
+
+  .about-header {
     text-align: center;
+    margin-bottom: 4rem;
 
     h3 {
-      font-size: 2.5rem;
+      font-size: 3rem;
       font-weight: 200;
       color: #333;
-      margin-bottom: 2rem;
+      margin: 0;
       text-transform: uppercase;
-      letter-spacing: 0.2em;
+      letter-spacing: 0.3em;
       font-family: 'Helvetica Neue', Arial, sans-serif;
+      position: relative;
+
+      &::after {
+        content: '';
+        position: absolute;
+        bottom: -1rem;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 60px;
+        height: 2px;
+        background: linear-gradient(90deg, transparent, #333, transparent);
+      }
+    }
+  }
+
+  .about-content {
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    gap: 4rem;
+    align-items: start;
+
+    @media (max-width: 768px) {
+      grid-template-columns: 1fr;
+      gap: 3rem;
+      text-align: center;
+    }
+  }
+
+  .headshot-container {
+    position: relative;
+
+    .headshot-image {
+      position: relative;
+      width: 280px;
+      height: 350px;
+      margin: 0 auto;
+
+      .headshot {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        object-position: center;
+        border-radius: 20px;
+        box-shadow:
+          0 20px 40px rgba(0, 0, 0, 0.1),
+          0 8px 16px rgba(0, 0, 0, 0.08);
+        transition: all 0.4s ease;
+        filter: grayscale(20%) contrast(1.1);
+
+        &:hover {
+          transform: translateY(-5px);
+          box-shadow:
+            0 30px 60px rgba(0, 0, 0, 0.15),
+            0 12px 24px rgba(0, 0, 0, 0.1);
+          filter: grayscale(0%) contrast(1.2);
+        }
+      }
+
+      .headshot-frame {
+        position: absolute;
+        top: -10px;
+        left: -10px;
+        right: -10px;
+        bottom: -10px;
+        border: 2px solid transparent;
+        border-radius: 25px;
+        background: linear-gradient(135deg, rgba(255, 255, 255, 0.8), rgba(255, 255, 255, 0.2));
+        background-clip: padding-box;
+        z-index: -1;
+        opacity: 0.6;
+      }
+
+      &::before {
+        content: '';
+        position: absolute;
+        top: -15px;
+        left: -15px;
+        right: -15px;
+        bottom: -15px;
+        background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+        border-radius: 30px;
+        z-index: -2;
+        opacity: 0.3;
+      }
+    }
+  }
+
+  .about-text {
+    .about-description {
+      p {
+        font-size: 1.2rem;
+        line-height: 1.8;
+        color: #666;
+        font-family: 'Helvetica Neue', Arial, sans-serif;
+        font-weight: 300;
+        margin: 0;
+      }
     }
 
-    p {
-      font-size: 1.2rem;
-      line-height: 1.8;
-      color: #666;
-      font-family: 'Helvetica Neue', Arial, sans-serif;
-      font-weight: 300;
+    .edit-form {
+      .form-group {
+        margin-bottom: 1.5rem;
+
+        label {
+          display: block;
+          margin-bottom: 0.5rem;
+          font-weight: 500;
+          color: #333;
+          font-family: 'Helvetica Neue', Arial, sans-serif;
+        }
+
+        textarea {
+          width: 100%;
+          padding: 1rem;
+          border: 1px solid #ddd;
+          border-radius: 8px;
+          font-size: 1rem;
+          font-family: 'Helvetica Neue', Arial, sans-serif;
+          line-height: 1.6;
+          resize: vertical;
+          transition: border-color 0.3s ease;
+
+          &:focus {
+            outline: none;
+            border-color: #333;
+            box-shadow: 0 0 0 3px rgba(51, 51, 51, 0.1);
+          }
+        }
+      }
     }
   }
 }

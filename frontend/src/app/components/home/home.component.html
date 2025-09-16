@@ -79,22 +79,40 @@
 
 <div class="intro-section">
   <div class="container">
-    <div class="intro-content">
-      <h3>About</h3>
+    <div class="about-wrapper">
+      <div class="about-header">
+        <h3>About</h3>
+      </div>
 
-      <!-- View Mode -->
-      <p *ngIf="!editMode" [innerHTML]="about | nl2br"></p>
+      <div class="about-content">
 
-      <!-- Edit Mode -->
-      <div *ngIf="editMode" class="edit-form">
-        <div class="form-group">
-          <label for="about">About Content</label>
-          <textarea
-            id="about"
-            [(ngModel)]="editForm.about"
-            name="about"
-            rows="6"
-            required></textarea>
+        <!-- About Text Section -->
+        <div class="about-text">
+          <!-- View Mode -->
+          <div *ngIf="!editMode" class="about-description">
+            <p [innerHTML]="about | nl2br"></p>
+          </div>
+
+          <!-- Edit Mode -->
+          <div *ngIf="editMode" class="edit-form">
+            <div class="form-group">
+              <label for="about">About Content</label>
+              <textarea
+                id="about"
+                [(ngModel)]="editForm.about"
+                name="about"
+                rows="6"
+                required></textarea>
+            </div>
+          </div>
+        </div>
+
+        <!-- Headshot Section -->
+        <div class="headshot-container">
+          <div class="headshot-image">
+            <img src="headshot.png" alt="Meeta Shah - Architect" class="headshot">
+            <div class="headshot-frame"></div>
+          </div>
         </div>
       </div>
     </div>

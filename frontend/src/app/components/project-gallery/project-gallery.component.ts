@@ -56,7 +56,11 @@ export class ProjectGalleryComponent implements OnInit {
     private projectApiService: ProjectApiService,
     protected adminService: AdminService,
     private router: Router
-  ) {}
+  ) {
+    this.adminService.isAdmin$.subscribe(isAdmin => {
+        this.isAdmin = isAdmin;
+      });
+    }
 
   ngOnInit() {
     // Check admin status
