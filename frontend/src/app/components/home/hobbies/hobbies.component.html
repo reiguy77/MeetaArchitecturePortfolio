@@ -7,8 +7,8 @@
       <div class="hobby-item" *ngFor="let hobby of hobbies; let i = index">
         <div class="item-content">
           <div class="item-details">
-            <div class="item-title">{{ hobby.name }}</div>
-            <div class="item-description" *ngIf="hobby.description">{{ hobby.description }}</div>
+            <p class="item-title">{{ hobby.name }}</p>
+            <p class="item-description" *ngIf="hobby.description">{{ hobby.description }}</p>
           </div>
           @if (editMode && isAdmin) {
           <div class="admin-controls">

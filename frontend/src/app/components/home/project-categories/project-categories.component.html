@@ -62,7 +62,7 @@
     <!-- Projects Content -->
     @if(!loading && !error) {
       @for(projectCategory of projectCategories; track projectCategory.id; let categoryIndex = $index) {
-        <div class="project-category">
+        <div class="project-category" [id]="'category-' + projectCategory.id">
           <div class="section-header light-theme mb-0">
             <div class="header-line"></div>
             <h3 class="section-title">{{projectCategory.name}}</h3>
@@ -155,35 +155,34 @@
             @for(project of projectCategory.projects; track project.id; let projectIndex = $index) {
               <div class="project-card" (click)="onProjectClick(project)">
                 @if(project.images && project.images.length > 0) {
-                  <div class="project-image-header">
-                    <img src="{{ backendUrl + project.images[0].src}}" alt="{{project.images[0].alt}}" class="project-image">
-                    <div class="image-overlay"></div>
+                  <img src="{{ backendUrl + project.images[0].src}}" alt="{{project.images[0].alt}}" class="project-image">
+                  <div class="project-content-overlay">
+                    <div class="project-header">
+                      <h4>{{project.name}}</h4>
+                      <span class="completion-year">{{project.constructionCompleted}}</span>
+                    </div>
+                  </div>
+
+                  <div class="project-hover-overlay">
+                    <div class="view-project-text">View Project</div>
+                    <div class="image-count">
+                      {{project.images.length}} images
+                    </div>
+                  </div>
+                } @else {
+                  <div class="no-image-content">
+                    <div class="project-header">
+                      <h4>{{project.name}}</h4>
+                      <span class="completion-year">{{project.constructionCompleted}}</span>
+                    </div>
+                    <p class="placeholder-text">Please add an image to this project</p>
+                  </div>
+
+                  <div class="project-hover-overlay">
+                    <div class="view-project-text">View Project</div>
+                    <div class="image-count">No images yet</div>
                   </div>
                 }
-
-                <div class="project-content">
-                  <div class="project-header">
-                    <h4>{{project.name}}</h4>
-                    <span class="completion-year">{{project.constructionCompleted}}</span>
-                  </div>
-
-                  <div class="project-details">
-                    <p class="project-description">{{project.description}}</p>
-                    <div class="project-role">
-                      <strong>Role:</strong> {{project.role}}
-                    </div>
-                    <div class="project-specs">
-                      {{project.details}}
-                    </div>
-                  </div>
-                </div>
-
-                <div class="project-hover-overlay">
-                  <div class="view-project-text">View Project</div>
-                  <div class="image-count" *ngIf="project.images && project.images.length > 0">
-                    {{project.images.length}} images
-                  </div>
-                </div>
               </div>
             }
           </div>

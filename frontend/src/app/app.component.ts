@@ -6,6 +6,7 @@ import { LoadingComponent } from './components/loading/loading.component';
 import { SiteLoginComponent } from './components/site-login/site-login.component';
 import { LoadingService } from './services/loading.service';
 import { SiteAuthService } from './services/site-auth.service';
+import { ProjectApiService, ProjectCategory } from './services/project-api.service';
 
 @Component({
   selector: 'app-root',
@@ -18,16 +19,22 @@ export class AppComponent implements OnInit {
   title = 'frontend';
   isLoading = true;
   isSiteAuthenticated = false;
+  projectCategories: ProjectCategory[] = [];
 
   constructor(
     public loadingService: LoadingService,
-    private siteAuthService: SiteAuthService
+    private siteAuthService: SiteAuthService,
+    private projectApiService: ProjectApiService
   ) {}
 
   ngOnInit() {
     // Check site authentication status
     this.siteAuthService.isAuthenticated$.subscribe(isAuthenticated => {
       this.isSiteAuthenticated = isAuthenticated;
+    });
+
+    this.projectApiService.getCategories().subscribe(categories => {
+      this.projectCategories = categories;
     });
 
     setTimeout(() => {

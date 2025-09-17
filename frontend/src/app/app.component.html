@@ -11,7 +11,8 @@
 
 @if (!isLoading && isSiteAuthenticated) {
 <div class="app-content fade-in">
-  <app-toolbar></app-toolbar>
+  <app-toolbar [projectCategories]="projectCategories"></app-toolbar>
+
   <router-outlet></router-outlet>
 </div>
 }

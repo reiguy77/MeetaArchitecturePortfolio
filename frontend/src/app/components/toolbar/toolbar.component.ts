@@ -1,7 +1,8 @@
-import { Component } from '@angular/core';
+import { Component, Input } from '@angular/core';
 import { Router, RouterModule, NavigationEnd } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { SiteAuthService } from '../../services/site-auth.service';
+import { ProjectCategory } from '../../services/project-api.service';
 
 @Component({
   selector: 'app-toolbar',
@@ -11,6 +12,7 @@ import { SiteAuthService } from '../../services/site-auth.service';
   styleUrl: './toolbar.component.less'
 })
 export class ToolbarComponent {
+  @Input() projectCategories: ProjectCategory[] = [];
   isProjectsActive = false;
   isAboutActive = false;
   isContactActive = false;
@@ -29,19 +31,27 @@ export class ToolbarComponent {
   }
 
   scrollToSection(sectionId: string) {
+    const performScroll = () => {
+      setTimeout(() => {
+        const el = document.getElementById(sectionId);
+        if (el) {
+          const navbarHeight = 80; // Height of the fixed navbar
+          const elementPosition = el.getBoundingClientRect().top;
+          const offsetPosition = elementPosition + window.pageYOffset - navbarHeight;
+
+          window.scrollTo({
+            top: offsetPosition,
+            behavior: 'smooth'
+          });
+        }
+      }, 100);
+    };
+
     if (this.router.url === '/' || this.router.url.startsWith('/#')) {
-      const el = document.getElementById(sectionId);
-      if (el) {
-        el.scrollIntoView({ behavior: 'smooth' });
-      }
+      performScroll();
     } else {
       this.router.navigate(['/']).then(() => {
-        setTimeout(() => {
-          const el = document.getElementById(sectionId);
-          if (el) {
-            el.scrollIntoView({ behavior: 'smooth' });
-          }
-        }, 100);
+        performScroll();
       });
     }
   }
@@ -51,12 +61,8 @@ export class ToolbarComponent {
   }
 
   private updateActiveStates() {
-    // Reset all states
     this.isProjectsActive = false;
     this.isAboutActive = false;
     this.isContactActive = false;
-
-    // You can add logic here to determine which section is currently visible
-    // For now, we'll keep it simple
   }
 }
