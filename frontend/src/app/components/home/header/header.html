@@ -1,0 +1,63 @@
+<div class="split-screen">
+  <!-- Left side - Image -->
+  <div class="image-section">
+    <!-- Cover Image Edit Form -->
+    <div *ngIf="editMode" class="image-edit-form">
+      <input
+        type="file"
+        accept="image/*"
+        (change)="onCoverImageSelected($event)"
+        class="form-input">
+      <small class="text-muted" *ngIf="editForm.coverImage">
+        Selected: {{ editForm.coverImage.name }}
+      </small>
+    </div>
+
+    <img [src]="backendUrl + coverImage" alt="Architectural Design" class="hero-image">
+  </div>
+
+  <!-- Right side - Content -->
+  <div class="content-section section-dark">
+    <div class="content-wrapper">
+      <h1>Meeta Shah</h1>
+      <h2>Architect</h2>
+
+      <!-- View Mode -->
+      <ng-container *ngIf="!editMode">
+        <p class="subtitle">{{ tagline }}</p>
+        <div class="description">
+          <p>{{ subtext }}</p>
+        </div>
+      </ng-container>
+
+      <!-- Edit Mode -->
+      <div *ngIf="editMode" class="card-light p-2">
+        <div class="form-group">
+          <label for="tagline">Tagline</label>
+          <input
+            type="text"
+            id="tagline"
+            [value]="editForm.tagline"
+            (input)="onTaglineChange($any($event.target).value)"
+            class="form-input"
+            required>
+        </div>
+
+        <div class="form-group">
+          <label for="subtext">Subtext</label>
+          <textarea
+            id="subtext"
+            [value]="editForm.subtext"
+            (input)="onSubtextChange($any($event.target).value)"
+            class="form-input"
+            rows="3"
+            required></textarea>
+        </div>
+      </div>
+
+      <div class="cta-buttons">
+        <button class="btn btn-primary" (click)="onScrollToProjects()">View Projects</button>
+      </div>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,99 @@
+<section class="education-section">
+  <div class="education-content">
+    <h3>CREDENTIALS &amp; EDUCATION</h3>
+
+    <!-- Display Mode -->
+    <div class="education-list" *ngIf="!showAddForm && editingIndex === null">
+      <div class="education-item" *ngFor="let item of educationItems; let i = index">
+        <div class="item-content">
+          <div class="item-details">
+            <div class="item-type">{{ getLabelForType(item.type) }}</div>
+            <div class="item-title">{{ item.title }}</div>
+            <div class="item-meta">
+              <span class="item-institution" *ngIf="item.institution">{{ item.institution }}</span>
+              <span class="item-location" *ngIf="item.location">{{ item.location }}</span>
+              <span class="item-year" *ngIf="item.year">{{ item.year }}</span>
+            </div>
+          </div>
+          @if (editMode && isAdmin) {
+          <div class="admin-controls">
+            <button class="edit-btn" (click)="startEditing(i)">Edit</button>
+            <button class="delete-btn" (click)="deleteEducationItem(i)">Delete</button>
+          </div>
+          }
+        </div>
+      </div>
+      @if (editMode && isAdmin) {
+      <button class="add-btn" (click)="startAdding()">Add New Item</button>
+      }
+    </div>
+
+    <!-- Edit Mode -->
+    <div class="edit-form" *ngIf="editingIndex !== null">
+      <h4>Edit {{ getLabelForType(editForm.type) }}</h4>
+      <div class="form-group">
+        <label>Type:</label>
+        <select [(ngModel)]="editForm.type">
+          <option value="credential">Credential</option>
+          <option value="membership">Membership</option>
+          <option value="degree">Degree</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Title:</label>
+        <input type="text" [(ngModel)]="editForm.title" placeholder="Enter title">
+      </div>
+      <div class="form-group">
+        <label>Institution:</label>
+        <input type="text" [(ngModel)]="editForm.institution" placeholder="Enter institution">
+      </div>
+      <div class="form-group">
+        <label>Location:</label>
+        <input type="text" [(ngModel)]="editForm.location" placeholder="Enter location">
+      </div>
+      <div class="form-group">
+        <label>Year:</label>
+        <input type="text" [(ngModel)]="editForm.year" placeholder="Enter year">
+      </div>
+      <div class="error-message" *ngIf="error">{{ error }}</div>
+      <div class="form-buttons">
+        <button class="save-btn" (click)="saveEdit()">Save</button>
+        <button class="cancel-btn" (click)="cancelEdit()">Cancel</button>
+      </div>
+    </div>
+
+    <!-- Add Form -->
+    <div class="add-form" *ngIf="showAddForm">
+      <h4>Add New {{ getLabelForType(newEducationItem.type) }}</h4>
+      <div class="form-group">
+        <label>Type:</label>
+        <select [(ngModel)]="newEducationItem.type">
+          <option value="credential">Credential</option>
+          <option value="membership">Membership</option>
+          <option value="degree">Degree</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Title:</label>
+        <input type="text" [(ngModel)]="newEducationItem.title" placeholder="Enter title">
+      </div>
+      <div class="form-group">
+        <label>Institution:</label>
+        <input type="text" [(ngModel)]="newEducationItem.institution" placeholder="Enter institution">
+      </div>
+      <div class="form-group">
+        <label>Location:</label>
+        <input type="text" [(ngModel)]="newEducationItem.location" placeholder="Enter location">
+      </div>
+      <div class="form-group">
+        <label>Year:</label>
+        <input type="text" [(ngModel)]="newEducationItem.year" placeholder="Enter year">
+      </div>
+      <div class="error-message" *ngIf="error">{{ error }}</div>
+      <div class="form-buttons">
+        <button class="save-btn" (click)="addEducationItem()">Add</button>
+        <button class="cancel-btn" (click)="cancelAdding()">Cancel</button>
+      </div>
+    </div>
+  </div>
+</section>

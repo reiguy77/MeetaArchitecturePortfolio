@@ -1,9 +1,9 @@
-// Modern Hobbies Section Styles
-.hobbies-section {
+// Modern Education Section Styles
+.education-section {
   padding: 120px 0;
-  background-color: #fff;
+  background-color: #fafafa;
 
-  .hobbies-content {
+  .education-content {
     max-width: 1200px;
     margin: 0 auto;
     padding: 0 40px;
@@ -32,18 +32,25 @@
     }
   }
 
-  .hobbies-list {
+  .education-list {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+    grid-template-columns: 1fr;
     gap: 32px;
   }
 
-  .hobby-item {
+  .education-item {
     background: #fff;
     border-radius: 2px;
     padding: 40px;
+    transition: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
     border: 1px solid rgba(0, 0, 0, 0.06);
     position: relative;
+
+    &:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.06);
+      border-color: rgba(0, 0, 0, 0.12);
+    }
 
     .item-content {
       display: flex;
@@ -54,21 +61,47 @@
     .item-details {
       flex: 1;
 
+      .item-type {
+        font-size: 0.75rem;
+        font-weight: 500;
+        text-transform: uppercase;
+        letter-spacing: 0.1em;
+        color: #666;
+        margin-bottom: 8px;
+      }
+
       .item-title {
         font-size: 1.5rem;
         font-weight: 300;
         color: #222;
         margin-bottom: 16px;
         line-height: 1.4;
-        letter-spacing: 0.02em;
+        letter-spacing: -0.01em;
       }
 
-      .item-description {
+      .item-meta {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px 24px;
         font-size: 1rem;
         color: #666;
         font-weight: 300;
         letter-spacing: 0.02em;
-        line-height: 1.6;
+
+        span {
+          position: relative;
+
+          &:not(:last-child):after {
+            content: '';
+            position: absolute;
+            right: -12px;
+            top: 50%;
+            width: 1px;
+            height: 1em;
+            background: rgba(0, 0, 0, 0.1);
+            transform: translateY(-50%);
+          }
+        }
       }
     }
   }
@@ -78,9 +111,7 @@
     gap: 12px;
     opacity: 1;
     transition: opacity 0.3s ease;
-    position: absolute;
-    top: 24px;
-    right: 24px;
+    margin-left: auto;
 
     button {
       padding: 8px 16px;
@@ -156,7 +187,7 @@
       }
 
       input,
-      textarea {
+      select {
         width: 100%;
         padding: 12px 0;
         border: none;
@@ -166,8 +197,6 @@
         background: transparent;
         color: #222;
         border-radius: 0;
-        font-family: inherit;
-        resize: vertical;
 
         &:focus {
           outline: none;
@@ -179,9 +208,21 @@
         }
       }
 
-      textarea {
-        min-height: 80px;
+      select {
+        appearance: none;
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='%23333' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+        background-repeat: no-repeat;
+        background-position: right 0 center;
+        background-size: 16px;
+        padding-right: 24px;
       }
+    }
+
+    .error-message {
+      color: #ff4444;
+      margin: -8px 0 16px;
+      font-size: 0.875rem;
+      font-weight: 500;
     }
 
     .form-buttons {
@@ -209,12 +250,6 @@
             background: #333;
             transform: translateY(-2px);
           }
-
-          &:disabled {
-            opacity: 0.5;
-            cursor: not-allowed;
-            transform: none;
-          }
         }
 
         &.cancel-btn {
@@ -231,39 +266,26 @@
       }
     }
   }
-
-  .empty-state {
-    text-align: center;
-    padding: 60px 0;
-    color: #666;
-
-    p {
-      font-size: 1rem;
-      margin-bottom: 24px;
-      font-weight: 300;
-      letter-spacing: 0.02em;
-    }
-  }
 }
 
 // Responsive Design
 @media (min-width: 768px) {
-  .hobbies-section {
-    .hobbies-list {
+  .education-section {
+    .education-list {
       grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
     }
   }
 }
 
 @media (max-width: 768px) {
-  .hobbies-section {
+  .education-section {
     padding: 80px 0;
 
-    .hobbies-content {
+    .education-content {
       padding: 0 24px;
     }
 
-    .hobby-item {
+    .education-item {
       padding: 32px 24px;
 
       .item-content {
@@ -280,8 +302,8 @@
 }
 
 @media (max-width: 480px) {
-  .hobbies-section {
-    .hobbies-content {
+  .education-section {
+    .education-content {
       padding: 0 16px;
 
       h3 {
@@ -289,14 +311,14 @@
       }
     }
 
-    .hobby-item {
+    .education-item {
       padding: 24px 20px;
 
       .item-title {
         font-size: 1.25rem;
       }
 
-      .item-description {
+      .item-meta {
         font-size: 0.875rem;
       }
     }

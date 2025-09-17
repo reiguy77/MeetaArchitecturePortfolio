@@ -154,17 +154,6 @@
           </div>
 
           <div class="form-group">
-            <label for="imageAlt">Alt Text</label>
-            <input
-              type="text"
-              id="imageAlt"
-              [(ngModel)]="newImageForm.alt"
-              name="alt"
-              placeholder="Describe the image for accessibility"
-              required>
-          </div>
-
-          <div class="form-group">
             <label for="imageCaption">Caption (Optional)</label>
             <input
               type="text"
@@ -175,7 +164,7 @@
           </div>
 
           <div class="form-actions">
-            <button type="submit" class="save-btn" [disabled]="!newImageForm.file || !newImageForm.alt.trim()">
+            <button type="submit" class="save-btn" [disabled]="!newImageForm.file">
               Add Image
             </button>
             <button type="button" class="cancel-btn" (click)="cancelAddingImage()">Cancel</button>
@@ -201,7 +190,7 @@
             tabindex="0"
             role="button"
             [attr.aria-label]="'View image ' + (i + 1) + ' of ' + images.length">
-            <img [src]="getImageUrl(image.src)" [alt]="image.alt" loading="lazy">
+            <img [src]="getImageUrl(image.src)" [alt]="image.caption" loading="lazy">
             <div class="image-overlay">
             </div>
           </div>
@@ -216,17 +205,8 @@
                   type="file"
                   id="imageFile"
                   [(ngModel)]="newImageForm.file"
+                  (change)="onEditImageFileSelected($event)"
                   name="file">
-              </div>
-
-              <div class="form-group">
-                <label for="editImageAlt">Alt Text</label>
-                <input
-                  type="text"
-                  id="editImageAlt"
-                  [(ngModel)]="editImageForm.alt"
-                  name="alt"
-                  required>
               </div>
 
               <div class="form-group">
@@ -300,7 +280,7 @@
       <div class="slide-content">
         <img
           [src]="getImageUrl(images[currentSlideIndex]?.src ?? '')"
-          [alt]="images[currentSlideIndex]?.alt"
+          [alt]="images[currentSlideIndex]?.caption"
           class="slide-image">
 
         <!-- Image Caption -->
@@ -316,7 +296,7 @@
           class="thumbnail"
           [class.active]="i === currentSlideIndex"
           (click)="currentSlideIndex = i">
-          <img [src]="getImageUrl(image.src)" [alt]="image.alt">
+          <img [src]="getImageUrl(image.src)" [alt]="image.caption">
         </div>
       </div>
 

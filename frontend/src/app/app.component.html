@@ -5,7 +5,13 @@
 </app-loading>
 }
 
-<div [style.display]="isLoading ? 'none' : 'block'" class="app-content fade-in">
+@if (!isLoading && !isSiteAuthenticated) {
+<app-site-login></app-site-login>
+}
+
+@if (!isLoading && isSiteAuthenticated) {
+<div class="app-content fade-in">
   <app-toolbar></app-toolbar>
   <router-outlet></router-outlet>
 </div>
+}

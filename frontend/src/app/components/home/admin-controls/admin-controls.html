@@ -1,0 +1,15 @@
+<div class="admin-controls" *ngIf="isAdmin">
+  <div class="d-flex gap-1">
+    <button class="btn btn-secondary" (click)="onLogout()">Exit Admin</button>
+    <button
+      *ngIf="!editMode"
+      class="btn btn-primary"
+      (click)="onToggleEditMode()">
+      Edit Content
+    </button>
+    <ng-container *ngIf="editMode">
+      <button class="btn btn-primary" (click)="onSaveChanges()">Save Changes</button>
+      <button class="btn btn-secondary" (click)="onCancelEdit()">Cancel</button>
+    </ng-container>
+  </div>
+</div>

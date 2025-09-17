@@ -1,88 +1,73 @@
-<div class="hobbies-container">
-    <div class="header">
-        <h3>Hobbies</h3>
-        @if (isAdmin) {
-            <button class="add-btn" (click)="isEditing = !isEditing" [class.active]="isEditing">
-                <span class="icon">{{ isEditing ? '✕' : '+' }}</span>
-                {{ isEditing ? 'Cancel' : 'Add Hobby' }}
-            </button>
-        }
+<section class="hobbies-section">
+  <div class="hobbies-content">
+    <h3>HOBBIES &amp; INTERESTS</h3>
+
+    <!-- Display Mode -->
+    <div class="hobbies-list" *ngIf="!isEditing">
+      <div class="hobby-item" *ngFor="let hobby of hobbies; let i = index">
+        <div class="item-content">
+          <div class="item-details">
+            <div class="item-title">{{ hobby.name }}</div>
+            <div class="item-description" *ngIf="hobby.description">{{ hobby.description }}</div>
+          </div>
+          @if (editMode && isAdmin) {
+          <div class="admin-controls">
+            <button class="edit-btn" (click)="startEditing(i)">Edit</button>
+              <button class="delete-btn" (click)="deleteHobby(i)">Delete</button>
+            </div>
+          }
+        </div>
+      </div>
+      @if (editMode && isAdmin) {
+      <button class="add-btn" (click)="isEditing = true">Add New Item</button>
+      }
     </div>
-    
+
+    <!-- Add Form -->
     @if (isAdmin && isEditing) {
-        <div class="add-hobby-form">
-            <div class="input-group">
-                <input 
-                    type="text" 
-                    [(ngModel)]="newHobby" 
-                    placeholder="Enter hobby name..."
-                    class="hobby-input"
-                >
-                <textarea 
-                    [(ngModel)]="newHobbyDescription" 
-                    placeholder="Enter hobby description (optional)..."
-                    class="hobby-description-input"
-                    rows="2"
-                ></textarea>
-                <button class="save-btn" (click)="addHobby()" [disabled]="!newHobby.trim()">
-                    Add Hobby
-                </button>
-            </div>
+      <div class="add-form">
+        <h4>Add New Hobby</h4>
+        <div class="form-group">
+          <label>Title:</label>
+          <input type="text" [(ngModel)]="newHobby" placeholder="Enter hobby name">
         </div>
+        <div class="form-group">
+          <label>Description:</label>
+          <textarea [(ngModel)]="newHobbyDescription" placeholder="Enter hobby description" rows="3"></textarea>
+        </div>
+        <div class="form-buttons">
+          <button class="save-btn" (click)="addHobby()" [disabled]="!newHobby.trim()">Add</button>
+          <button class="cancel-btn" (click)="isEditing = false">Cancel</button>
+        </div>
+      </div>
     }
-    
-    <div class="hobby-grid">
-        @for(hobby of hobbies; track $index) {
-            <div class="hobby-card" [class.editing]="editingIndex === $index">
-                @if (editingIndex === $index) {
-                    <div class="edit-form">
-                        <input 
-                            type="text" 
-                            [(ngModel)]="editHobbyText" 
-                            placeholder="Hobby name"
-                            class="edit-name-input"
-                        >
-                        <textarea 
-                            [(ngModel)]="editHobbyDescription" 
-                            placeholder="Hobby description (optional)"
-                            class="edit-description-input"
-                            rows="3"
-                        ></textarea>
-                        <div class="edit-actions">
-                            <button class="save-btn" (click)="saveEdit()">Save</button>
-                            <button class="cancel-btn" (click)="cancelEdit()">Cancel</button>
-                        </div>
-                    </div>
-                } @else {
-                    <div class="hobby-content">
-                        <h4 class="hobby-name">{{hobby.name}}</h4>
-                        @if (hobby.description) {
-                            <p class="hobby-description">{{hobby.description}}</p>
-                        }
-                        @if (isAdmin) {
-                            <div class="hobby-actions">
-                                <button class="edit-btn" (click)="startEditing($index)" title="Edit">
-                                    ✏️
-                                </button>
-                                <button class="delete-btn" (click)="deleteHobby($index)" title="Delete">
-                                    🗑️
-                                </button>
-                            </div>
-                        }
-                    </div>
-                }
-            </div>
-        }
-    </div>
-    
+
+    <!-- Edit Form -->
+    @if (editingIndex !== -1) {
+      <div class="edit-form">
+        <h4>Edit Hobby</h4>
+        <div class="form-group">
+          <label>Title:</label>
+          <input type="text" [(ngModel)]="editHobbyText" placeholder="Enter hobby name">
+        </div>
+        <div class="form-group">
+          <label>Description:</label>
+          <textarea [(ngModel)]="editHobbyDescription" placeholder="Enter hobby description" rows="3"></textarea>
+        </div>
+        <div class="form-buttons">
+          <button class="save-btn" (click)="saveEdit()">Save</button>
+          <button class="cancel-btn" (click)="cancelEdit()">Cancel</button>
+        </div>
+      </div>
+    }
+
     @if (hobbies.length === 0) {
-        <div class="empty-state">
-            <p>No hobbies added yet.</p>
-            @if (isAdmin) {
-                <button class="add-btn primary" (click)="isEditing = true">
-                    Add Your First Hobby
-                </button>
-            }
-        </div>
+      <div class="empty-state">
+        <p>No hobbies added yet.</p>
+        @if (isAdmin) {
+          <button class="add-btn" (click)="isEditing = true">Add Your First Hobby</button>
+        }
+      </div>
     }
-</div>
+  </div>
+</section>

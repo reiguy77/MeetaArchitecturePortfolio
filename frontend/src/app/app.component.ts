@@ -3,22 +3,33 @@ import { RouterOutlet } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { ToolbarComponent } from './components/toolbar/toolbar.component';
 import { LoadingComponent } from './components/loading/loading.component';
+import { SiteLoginComponent } from './components/site-login/site-login.component';
 import { LoadingService } from './services/loading.service';
+import { SiteAuthService } from './services/site-auth.service';
 
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [RouterOutlet, ToolbarComponent, LoadingComponent, CommonModule],
+  imports: [RouterOutlet, ToolbarComponent, LoadingComponent, SiteLoginComponent, CommonModule],
   templateUrl: './app.component.html',
   styleUrl: './app.component.less'
 })
 export class AppComponent implements OnInit {
   title = 'frontend';
   isLoading = true;
+  isSiteAuthenticated = false;
 
-  constructor(public loadingService: LoadingService) {}
+  constructor(
+    public loadingService: LoadingService,
+    private siteAuthService: SiteAuthService
+  ) {}
 
   ngOnInit() {
+    // Check site authentication status
+    this.siteAuthService.isAuthenticated$.subscribe(isAuthenticated => {
+      this.isSiteAuthenticated = isAuthenticated;
+    });
+
     setTimeout(() => {
       this.isLoading = false;
     }, 2000);

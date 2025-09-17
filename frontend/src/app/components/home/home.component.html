@@ -1,20 +1,13 @@
-<div class="split-screen">
-  <!-- Admin Edit Controls -->
-  <div class="admin-controls" *ngIf="isAdmin">
-    <div class="admin-buttons">
-      <button class="add-btn primary" (click)="logout()">Logout</button>
-      <button
-        *ngIf="!editMode"
-        class="edit-toggle-btn"
-        (click)="toggleEditMode()">
-        Edit Content
-      </button>
-      <ng-container *ngIf="editMode">
-        <button class="save-btn" (click)="saveChanges()">Save Changes</button>
-        <button class="cancel-btn" (click)="cancelEdit()">Cancel</button>
-      </ng-container>
-    </div>
-  </div>
+<div class="split-screen" id="home">
+  <!-- Admin Controls -->
+  <app-admin-controls
+    [isAdmin]="isAdmin"
+    [editMode]="editMode"
+    (logout)="logout()"
+    (toggleEditMode)="toggleEditMode()"
+    (saveChanges)="saveChanges()"
+    (cancelEdit)="cancelEdit()">
+  </app-admin-controls>
 
   <!-- Left side - Image -->
   <div class="image-section">
@@ -36,7 +29,7 @@
   <!-- Right side - Content -->
   <div class="content-section">
     <div class="content-wrapper">
-      <h1>Meeta Shah</h1>
+      <h1 (click)="onNameClick()">Meeta Shah</h1>
       <h2>Architect</h2>
 
       <!-- View Mode -->
@@ -119,76 +112,32 @@
   </div>
 </div>
 
-<div class="projects-section" id="projects">
-  <div class="container">
-    <!-- Loading State -->
-    @if(loading) {
-      <div class="loading-state">
-        <div class="loading-spinner"></div>
-        <p>Loading projects...</p>
-      </div>
-    }
-
-    <!-- Error State -->
-    @if(error && !loading) {
-      <div class="error-state">
-        <h3>Oops! Something went wrong</h3>
-        <p>{{error}}</p>
-        <button class="retry-btn" (click)="retryLoad()">Try Again</button>
-      </div>
-    }
-
-    <!-- Projects Content -->
-    @if(!loading && !error) {
-      @for(projectCategory of projectCategories; track projectCategory.id) {
-        <div class="project-category">
-          <div class="category-header">
-            <h3>{{projectCategory.name}}</h3>
-            <p class="category-description">{{projectCategory.description}}</p>
-          </div>
-
-          <div class="projects-grid">
-            @for(project of projectCategory.projects; track project.id) {
-              <div class="project-card" (click)="onProjectClick(project)">
-                @if(project.images && project.images.length > 0) {
-                  <div class="project-image-header">
-                    <img src="{{ backendUrl + project.images[0].src}}" alt="{{project.images[0].alt}}" class="project-image">
-                    <div class="image-overlay"></div>
-                  </div>
-                }
-
-                <div class="project-content">
-                  <div class="project-header">
-                    <h4>{{project.name}}</h4>
-                    <span class="completion-year">{{project.constructionCompleted}}</span>
-                  </div>
-
-                  <div class="project-details">
-                    <p class="project-description">{{project.description}}</p>
-                    <div class="project-role">
-                      <strong>Role:</strong> {{project.role}}
-                    </div>
-                    <div class="project-specs">
-                      {{project.details}}
-                    </div>
-                  </div>
-                </div>
-
-                <div class="project-hover-overlay">
-                  <div class="view-project-text">View Project</div>
-                  <div class="image-count" *ngIf="project.images && project.images.length > 0">
-                    {{project.images.length}} images
-                  </div>
-                </div>
-              </div>
-            }
-          </div>
-        </div>
-      }
-    }
-  </div>
+<div id="projects">
+  <app-project-categories
+    [projectCategories]="projectCategories"
+    [loading]="loading"
+    [error]="error"
+    [editMode]="editMode"
+    [isAdmin]="isAdmin"
+    [backendUrl]="backendUrl"
+    (projectClick)="onProjectClick($event)"
+    (deleteProject)="onDeleteProject($event)"
+    (retryLoad)="retryLoad()"
+    (createProject)="onCreateProject($event)"
+    (createCategory)="onCreateCategory($event)"
+    (deleteCategory)="onDeleteCategory($event)">
+  </app-project-categories>
 </div>
-<div class="w-100">
-  <app-hobbies></app-hobbies>
+
+<div id="education">
+  <app-education
+    [isAdmin]="isAdmin"
+    [editMode]="editMode">
+  </app-education>
+</div>
+
+<div id="hobbies">
+  <app-hobbies [editMode]="editMode">
+  </app-hobbies>
 </div>
 

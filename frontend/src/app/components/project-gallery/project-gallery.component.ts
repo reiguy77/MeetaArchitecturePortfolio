@@ -39,13 +39,11 @@ export class ProjectGalleryComponent implements OnInit {
 
   newImageForm = {
     file: null as File | null,
-    alt: '',
     caption: ''
   };
 
   editImageForm = {
     file: null as File | null,
-    alt: '',
     caption: ''
   };
 
@@ -172,13 +170,13 @@ export class ProjectGalleryComponent implements OnInit {
     if (!this.isAdmin) return;
 
     this.addingImage = true;
-    this.newImageForm = { file: null, alt: '', caption: '' };
+    this.newImageForm = { file: null, caption: '' };
     this.error = null;
   }
 
   cancelAddingImage() {
     this.addingImage = false;
-    this.newImageForm = { file: null, alt: '', caption: '' };
+    this.newImageForm = { file: null, caption: '' };
     this.error = null;
   }
 
@@ -202,14 +200,9 @@ export class ProjectGalleryComponent implements OnInit {
       return;
     }
 
-    if (!this.newImageForm.alt.trim()) {
-      this.error = 'Please provide alt text for the image';
-      return;
-    }
 
     const imageData: CreateImageRequest = {
       file: this.newImageForm.file,
-      alt: this.newImageForm.alt,
       caption: this.newImageForm.caption
     };
 
@@ -221,7 +214,7 @@ export class ProjectGalleryComponent implements OnInit {
           this.project.images?.push(newImage);
         }
         this.addingImage = false;
-        this.newImageForm = { file: null, alt: '', caption: '' };
+        this.newImageForm = { file: null, caption: '' };
         this.error = null;
       },
       error: (error) => {
@@ -250,22 +243,30 @@ export class ProjectGalleryComponent implements OnInit {
     this.editingImage = image;
     this.editImageForm = {
       file: null,
-      alt: image.alt,
       caption: image.caption || ''
     };
   }
 
   cancelEditingImage() {
     this.editingImage = null;
-    this.editImageForm = { file: null, alt: '', caption: '' };
+    this.editImageForm = { file: null, caption: '' };
+  }
+
+  onEditImageFileSelected(event: any) {
+    const file = event.target.files[0];
+    console.log('File selected:', file.name, file.size, 'bytes');
+    if (file) {
+      this.editImageForm.file = file;
+      this.error = null;
+    }
   }
 
   saveImage() {
     if (!this.editingImage || !this.isAdmin) return;
 
+    console.log('Saving image:', this.editImageForm.file, this.editImageForm.caption);
     const imageData: UpdateImageRequest = {
       file: this.editImageForm.file || undefined,
-      alt: this.editImageForm.alt,
       caption: this.editImageForm.caption
     };
 
@@ -278,7 +279,7 @@ export class ProjectGalleryComponent implements OnInit {
           }
         }
         this.editingImage = null;
-        this.editImageForm = { file: null, alt: '', caption: '' };
+        this.editImageForm = { file: null, caption: '' };
       },
       error: (error) => {
         console.error('Error updating image:', error);

@@ -1,0 +1,42 @@
+<div class="about-section section-light">
+  <div class="container">
+    <div class="section-header light-theme">
+      <div class="header-line"></div>
+      <h3 class="section-title">About</h3>
+      <div class="header-line"></div>
+    </div>
+
+    <div class="about-content">
+      <!-- About Text Section -->
+      <div class="about-text">
+        <!-- View Mode -->
+        <div *ngIf="!editMode" class="about-description">
+          <p [innerHTML]="about | nl2br"></p>
+        </div>
+
+        <!-- Edit Mode -->
+        <div *ngIf="editMode" class="card-light p-2">
+          <div class="form-group">
+            <label for="about">About Content</label>
+            <textarea
+              id="about"
+              [value]="about"
+              (input)="onAboutChange($any($event.target).value)"
+              name="about"
+              rows="6"
+              class="form-input"
+              required></textarea>
+          </div>
+        </div>
+      </div>
+
+      <!-- Headshot Section -->
+      <div class="headshot-container">
+        <div class="headshot-image">
+          <img src="headshot.png" alt="Meeta Shah - Architect" class="headshot">
+          <div class="headshot-frame"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

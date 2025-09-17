@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, Input, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { SiteContentService, SiteContent } from '../../../services/site-content.service';
@@ -18,6 +18,7 @@ export interface Hobby {
   styleUrl: './hobbies.component.less'
 })
 export class HobbiesComponent implements OnInit {
+  @Input() editMode = false;
   hobbies: Hobby[] = [];
   isEditing = false;
   editingIndex = -1;

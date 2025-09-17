@@ -9,11 +9,18 @@ import { SiteContentService, SiteContent } from '../../services/site-content.ser
 import { HobbiesComponent } from './hobbies/hobbies.component';
 import { Nl2brPipe } from '../../pipes/nl2br.pipe';
 import { environment } from '../../../environments/environment';
+import { EducationComponent } from './education/education';
+import { ProjectCategoriesComponent } from './project-categories/project-categories.component';
+import { CreateProjectRequest, CreateCategoryRequest } from '../../services/project-api.service';
+import { AdminControlsComponent } from './admin-controls/admin-controls';
 
 @Component({
   selector: 'app-home',
   standalone: true,
-  imports: [CommonModule, RouterModule, FormsModule, HobbiesComponent, Nl2brPipe],
+  imports: [CommonModule, RouterModule,
+    FormsModule, HobbiesComponent, Nl2brPipe,
+    EducationComponent, ProjectCategoriesComponent,
+     AdminControlsComponent],
   templateUrl: './home.component.html',
   styleUrl: './home.component.less'
 })
@@ -24,6 +31,8 @@ export class HomeComponent implements OnInit {
   isAdmin = false;
   editMode = false;
   showAddProject = false;
+  private nameClickCount = 0;
+  private clickTimer: any;
 
   // Site content
   coverImage = 'header.jpeg';
@@ -292,6 +301,22 @@ export class HomeComponent implements OnInit {
     this.router.navigate(['/project', project.id]);
   }
 
+  onNameClick() {
+    this.nameClickCount++;
+
+    // Reset count after 2 seconds of no clicks
+    clearTimeout(this.clickTimer);
+    this.clickTimer = setTimeout(() => {
+      this.nameClickCount = 0;
+    }, 2000);
+
+    // After 3 quick clicks, redirect to admin
+    if (this.nameClickCount === 2) {
+      this.nameClickCount = 0;
+      clearTimeout(this.clickTimer);
+      this.router.navigate(['/admin']);
+    }
+  }
 
   deleteProject(projectId: number, categoryIndex: number, projectIndex: number) {
     if (!this.isAdmin) return;
@@ -326,5 +351,57 @@ export class HomeComponent implements OnInit {
     this.adminService.logout();
     this.editMode = false;
     this.showAddProject = false;
+  }
+
+  onDeleteProject(event: {projectId: number, categoryIndex: number, projectIndex: number}) {
+    this.projectApiService.deleteProject(event.projectId).subscribe({
+      next: () => {
+        if (this.projectCategories[event.categoryIndex]) {
+          this.projectCategories[event.categoryIndex].projects.splice(event.projectIndex, 1);
+        }
+      },
+      error: (error) => {
+        console.error('Error deleting project:', error);
+        this.error = 'Failed to delete project';
+      }
+    });
+  }
+
+  onCreateProject(event: {projectData: CreateProjectRequest, categoryIndex: number}) {
+    this.projectApiService.createProject(event.projectData).subscribe({
+      next: (newProject) => {
+        if (this.projectCategories[event.categoryIndex]) {
+          this.projectCategories[event.categoryIndex].projects.push(newProject);
+        }
+      },
+      error: (error) => {
+        console.error('Error creating project:', error);
+        this.error = 'Failed to create project';
+      }
+    });
+  }
+
+  onCreateCategory(categoryData: CreateCategoryRequest) {
+    this.projectApiService.createCategory(categoryData).subscribe({
+      next: (newCategory: ProjectCategory) => {
+        this.projectCategories.push(newCategory);
+      },
+      error: (error: any) => {
+        console.error('Error creating category:', error);
+        this.error = 'Failed to create category';
+      }
+    });
+  }
+
+  onDeleteCategory(event: {categoryId: number, categoryIndex: number}) {
+    this.projectApiService.deleteCategory(event.categoryId).subscribe({
+      next: () => {
+        this.projectCategories.splice(event.categoryIndex, 1);
+      },
+      error: (error) => {
+        console.error('Error deleting category:', error);
+        this.error = 'Failed to delete category';
+      }
+    });
   }
 }

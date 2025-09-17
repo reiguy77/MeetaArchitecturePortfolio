@@ -1,6 +1,7 @@
 import { Component } from '@angular/core';
 import { Router, RouterModule, NavigationEnd } from '@angular/router';
 import { CommonModule } from '@angular/common';
+import { SiteAuthService } from '../../services/site-auth.service';
 
 @Component({
   selector: 'app-toolbar',
@@ -14,7 +15,10 @@ export class ToolbarComponent {
   isAboutActive = false;
   isContactActive = false;
 
-  constructor(private router: Router) {}
+  constructor(
+    private router: Router,
+    private siteAuthService: SiteAuthService
+  ) {}
 
   ngOnInit() {
     this.router.events.subscribe((event) => {
@@ -40,6 +44,10 @@ export class ToolbarComponent {
         }, 100);
       });
     }
+  }
+
+  logout() {
+    this.siteAuthService.logout();
   }
 
   private updateActiveStates() {

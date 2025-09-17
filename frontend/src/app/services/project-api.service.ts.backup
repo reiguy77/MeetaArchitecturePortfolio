@@ -54,6 +54,7 @@ export interface UpdateProjectRequest {
 
 export interface CreateImageRequest {
   file: File;
+  alt: string;
   caption?: string;
 }
 
@@ -61,11 +62,6 @@ export interface UpdateImageRequest {
   file?: File;
   alt?: string;
   caption?: string;
-}
-
-export interface CreateCategoryRequest {
-  name: string;
-  description: string;
 }
 
 @Injectable({
@@ -108,7 +104,8 @@ export class ProjectApiService {
 
   addImageToProject(projectId: number, imageData: CreateImageRequest): Observable<ProjectImage> {
     const formData = new FormData();
-    formData.append('image', imageData.file);
+    formData.append('file', imageData.file);
+    formData.append('alt', imageData.alt);
     if (imageData.caption) {
       formData.append('caption', imageData.caption);
     }
@@ -119,38 +116,47 @@ export class ProjectApiService {
 
   updateImage(imageId: number, imageData: UpdateImageRequest): Observable<ProjectImage> {
     const formData = new FormData();
-    const headers = this.adminService.getAuthHeaders();
-
-    // If a file is present, use the file upload endpoint
     if (imageData.file) {
-      formData.append('image', imageData.file);
-      if (imageData.caption) {
-        formData.append('caption', imageData.caption);
-      }
-      return this.http.put<ProjectImage>(`${this.apiUrl}/images/${imageId}/file`, formData, { headers });
+      formData.append('file', imageData.file);
     }
-
-    // If no file, just update the caption
+    if (imageData.alt) {
+      formData.append('alt', imageData.alt);
+    }
     if (imageData.caption) {
-      return this.http.put<ProjectImage>(`${this.apiUrl}/images/${imageId}`, { caption: imageData.caption }, { headers });
+      formData.append('caption', imageData.caption);
     }
 
-    // If neither file nor caption, return the original image
-    return this.http.get<ProjectImage>(`${this.apiUrl}/images/${imageId}`);
+    const headers = this.adminService.getAuthHeaders();
+    return this.http.put<ProjectImage>(`${this.apiUrl}/images/${imageId}`, formData, { headers });
   }
 
   deleteImage(imageId: number): Observable<{ message: string }> {
     const headers = this.adminService.getAuthHeaders();
     return this.http.delete<{ message: string }>(`${this.apiUrl}/images/${imageId}`, { headers });
   }
+}
+
+export interface CreateCategoryRequest {
+  name: string;
+  description: string;
+}
+
+export interface UpdateCategoryRequest {
+  name?: string;
+  description?: string;
+}
 
   createCategory(categoryData: CreateCategoryRequest): Observable<ProjectCategory> {
     const headers = this.adminService.getAuthHeaders();
     return this.http.post<ProjectCategory>(`${this.apiUrl}/categories`, categoryData, { headers });
   }
 
-  deleteCategory(categoryId: number): Observable<{ message: string }> {
+  updateCategory(id: number, categoryData: UpdateCategoryRequest): Observable<ProjectCategory> {
     const headers = this.adminService.getAuthHeaders();
-    return this.http.delete<{ message: string }>(`${this.apiUrl}/categories/${categoryId}`, { headers });
+    return this.http.put<ProjectCategory>(`${this.apiUrl}/categories/${id}`, categoryData, { headers });
   }
-}
+
+  deleteCategory(id: number): Observable<{ message: string }> {
+    const headers = this.adminService.getAuthHeaders();
+    return this.http.delete<{ message: string }>(`${this.apiUrl}/categories/${id}`, { headers });
+  }

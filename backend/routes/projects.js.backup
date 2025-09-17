@@ -106,34 +106,6 @@ router.post("/", authenticateToken, async (req, res) => {
     res.status(500).json({ error: "Internal server error" });
   }
 });
-
-// Create a new category (admin only)
-router.post("/categories", authenticateToken, async (req, res) => {
-  try {
-    const { name, description } = req.body;
-
-    if (!name || !description) {
-      return res.status(400).json({ error: "Name and description are required" });
-    }
-
-    const category = await ProjectCategory.create({
-      name,
-      description
-    });
-
-    // Return the created category with empty projects array
-    const createdCategory = {
-      ...category.toJSON(),
-      projects: []
-    };
-
-    res.status(201).json(createdCategory);
-  } catch (error) {
-    console.error("Error creating category:", error);
-    res.status(500).json({ error: "Internal server error" });
-  }
-});
-
 // Get a specific project by ID with its images (public)
 router.get('/:id', async (req, res) => {
   try {
@@ -204,9 +176,8 @@ router.put('/:id', authenticateToken, async (req, res) => {
 });
 
 // Add a new image to a project with file upload (admin only)
-router.post('/:id/images', authenticateToken, upload.single('image'), async (req, res) => {
+router.post('/:id/images', authenticateToken, upload.single('file'), async (req, res) => {
   try {
-    console.log('test');
     const projectId = parseInt(req.params.id);
     const { alt, caption } = req.body;
 
@@ -235,17 +206,25 @@ router.post('/:id/images', authenticateToken, upload.single('image'), async (req
 });
 
 // Update an image (text fields only, admin only)
-router.put('/images/:imageId', authenticateToken,  async (req, res) => {
+router.put('/images/:imageId', authenticateToken, upload.single('file'), async (req, res) => {
   try {
     const imageId = parseInt(req.params.imageId);
-    const { caption = '' } = req.body ?? {};
+
+    const { alt, caption } = req.body;
 
     const image = await ProjectImage.findByPk(imageId);
     if (!image) {
       return res.status(404).json({ error: 'Image not found' });
     }
+    let src = image.src;
+
+    if (req.file) {
+      src = `/uploads/images/${req.file.filename}`;
+    }
 
     await image.update({
+      alt,
+      src: src,
       caption
     });
 
@@ -257,10 +236,11 @@ router.put('/images/:imageId', authenticateToken,  async (req, res) => {
 });
 
 // Update an image with optional file upload (admin only)
-router.put('/images/:imageId/file', authenticateToken, upload.single('image'), async (req, res) => {
+router.put('/images/:imageId/file', authenticateToken, upload.single('file'), async (req, res) => {
   try {
     const imageId = parseInt(req.params.imageId);
     const { alt, caption } = req.body;
+    console.log('req.body', req.body);
 
     const image = await ProjectImage.findByPk(imageId);
     if (!image) {
@@ -397,53 +377,4 @@ router.delete("/:id", authenticateToken, async (req, res) => {
     res.status(500).json({ error: "Internal server error" });
   }
 });
-
-// Delete a category (admin only)
-router.delete("/categories/:id", authenticateToken, async (req, res) => {
-  try {
-    const categoryId = parseInt(req.params.id);
-
-    // Find the category
-    const category = await ProjectCategory.findByPk(categoryId, {
-      include: [{
-        model: Project,
-        as: "projects",
-        include: [{
-          model: ProjectImage,
-          as: "images"
-        }]
-      }]
-    });
-
-    if (!category) {
-      return res.status(404).json({ error: "Category not found" });
-    }
-
-    // Delete all associated project images
-    for (const project of category.projects) {
-      for (const image of project.images) {
-        if (image.src && image.src.startsWith("/uploads/")) {
-          const filePath = path.join(__dirname, "..", image.src);
-          try {
-            if (fs.existsSync(filePath)) {
-              fs.unlinkSync(filePath);
-              console.log(`Deleted file: ${filePath}`);
-            }
-          } catch (fileError) {
-            console.error("Error deleting file:", fileError);
-          }
-        }
-      }
-    }
-
-    // Delete the category (this will cascade delete projects and images)
-    await category.destroy();
-
-    res.json({ message: "Category and all associated projects deleted successfully" });
-  } catch (error) {
-    console.error("Error deleting category:", error);
-    res.status(500).json({ error: "Internal server error" });
-  }
-});
-
 module.exports = router;

@@ -1,0 +1,194 @@
+<div class="projects-section section-light" id="projects">
+  <div class="container">
+    <!-- Admin Controls for Adding Category -->
+    @if (editMode && isAdmin) {
+      <div class="admin-controls-inline">
+        <button class="btn btn-primary" (click)="toggleAddCategory()">
+          {{ showAddCategory ? 'Cancel' : 'Add New Category' }}
+        </button>
+      </div>
+
+      <!-- Add New Category Form -->
+      @if (showAddCategory) {
+        <div class="add-category-form slide-up">
+          <h4>Add New Category</h4>
+          <form (ngSubmit)="addCategory()">
+            <div class="form-group">
+              <label for="categoryName">Category Name</label>
+              <input
+                type="text"
+                id="categoryName"
+                [(ngModel)]="newCategoryForm.name"
+                name="categoryName"
+                placeholder="e.g., Residential"
+                required>
+            </div>
+            <div class="form-group">
+              <label for="categoryDescription">Description</label>
+              <input
+                type="text"
+                id="categoryDescription"
+                [(ngModel)]="newCategoryForm.description"
+                name="categoryDescription"
+                placeholder="Brief description of the category"
+                required>
+            </div>
+            <div class="form-actions">
+              <button type="submit" class="btn btn-primary">Add Category</button>
+              <button type="button" class="btn btn-secondary" (click)="cancelAddCategory()">Cancel</button>
+            </div>
+          </form>
+        </div>
+      }
+    }
+
+    <!-- Loading State -->
+    @if(loading) {
+      <div class="loading-state">
+        <div class="loading-spinner"></div>
+        <p>Loading projects...</p>
+      </div>
+    }
+
+    <!-- Error State -->
+    @if(error && !loading) {
+      <div class="error-state">
+        <h3>Oops! Something went wrong</h3>
+        <p>{{error}}</p>
+        <button class="retry-btn" (click)="onRetryLoad()">Try Again</button>
+      </div>
+    }
+
+    <!-- Projects Content -->
+    @if(!loading && !error) {
+      @for(projectCategory of projectCategories; track projectCategory.id; let categoryIndex = $index) {
+        <div class="project-category">
+          <div class="section-header light-theme mb-0">
+            <div class="header-line"></div>
+            <h3 class="section-title">{{projectCategory.name}}</h3>
+            <div class="header-line"></div>
+            @if (editMode && isAdmin) {
+              <button class="delete-category-btn" (click)="onDeleteCategory(projectCategory.id, categoryIndex)">
+                Delete Category
+              </button>
+            }
+          </div>
+          <p class="category-description text-center mb-5">{{projectCategory.description}}</p>
+
+          <!-- Admin Controls for Adding Project -->
+          @if (editMode && isAdmin) {
+            <div class="admin-controls-inline">
+              <button class="btn btn-primary" (click)="toggleAddProject(categoryIndex, projectCategory.id)">
+                {{ showAddProject[categoryIndex] ? 'Cancel' : 'Add Project to ' + projectCategory.name }}
+              </button>
+            </div>
+
+            <!-- Add Project Form -->
+            @if (showAddProject[categoryIndex]) {
+              <div class="add-project-form slide-up">
+                <h4>Add New Project to {{ projectCategory.name }}</h4>
+                <form (ngSubmit)="addProject(categoryIndex)">
+                  <div class="form-row">
+                    <div class="form-group">
+                      <label for="projectName-{{categoryIndex}}">Project Name</label>
+                      <input
+                        type="text"
+                        id="projectName-{{categoryIndex}}"
+                        [(ngModel)]="newProjectForms[categoryIndex].name"
+                        name="projectName"
+                        placeholder="e.g., Luxury Hotel Tower"
+                        required>
+                    </div>
+                    <div class="form-group">
+                      <label for="projectRole-{{categoryIndex}}">Role</label>
+                      <input
+                        type="text"
+                        id="projectRole-{{categoryIndex}}"
+                        [(ngModel)]="newProjectForms[categoryIndex].role"
+                        name="projectRole"
+                        placeholder="e.g., Principal Architect"
+                        required>
+                    </div>
+                  </div>
+                  <div class="form-row">
+                    <div class="form-group">
+                      <label for="projectDescription-{{categoryIndex}}">Description</label>
+                      <textarea
+                        id="projectDescription-{{categoryIndex}}"
+                        [(ngModel)]="newProjectForms[categoryIndex].description"
+                        name="projectDescription"
+                        rows="2"
+                        placeholder="Brief project description"
+                        required></textarea>
+                    </div>
+                    <div class="form-group">
+                      <label for="projectDetails-{{categoryIndex}}">Details</label>
+                      <textarea
+                        id="projectDetails-{{categoryIndex}}"
+                        [(ngModel)]="newProjectForms[categoryIndex].details"
+                        name="projectDetails"
+                        rows="2"
+                        placeholder="Technical details, specifications, etc."
+                        required></textarea>
+                    </div>
+                  </div>
+                  <div class="form-group">
+                    <label for="projectYear-{{categoryIndex}}">Construction Completed</label>
+                    <input
+                      type="text"
+                      id="projectYear-{{categoryIndex}}"
+                      [(ngModel)]="newProjectForms[categoryIndex].constructionCompleted"
+                      name="projectYear"
+                      placeholder="e.g., 2023"
+                      required>
+                  </div>
+                  <div class="form-actions">
+                    <button type="submit" class="btn btn-primary">Add Project</button>
+                    <button type="button" class="btn btn-secondary" (click)="cancelAddProject(categoryIndex)">Cancel</button>
+                  </div>
+                </form>
+              </div>
+            }
+          }
+
+          <div class="projects-grid">
+            @for(project of projectCategory.projects; track project.id; let projectIndex = $index) {
+              <div class="project-card" (click)="onProjectClick(project)">
+                @if(project.images && project.images.length > 0) {
+                  <div class="project-image-header">
+                    <img src="{{ backendUrl + project.images[0].src}}" alt="{{project.images[0].alt}}" class="project-image">
+                    <div class="image-overlay"></div>
+                  </div>
+                }
+
+                <div class="project-content">
+                  <div class="project-header">
+                    <h4>{{project.name}}</h4>
+                    <span class="completion-year">{{project.constructionCompleted}}</span>
+                  </div>
+
+                  <div class="project-details">
+                    <p class="project-description">{{project.description}}</p>
+                    <div class="project-role">
+                      <strong>Role:</strong> {{project.role}}
+                    </div>
+                    <div class="project-specs">
+                      {{project.details}}
+                    </div>
+                  </div>
+                </div>
+
+                <div class="project-hover-overlay">
+                  <div class="view-project-text">View Project</div>
+                  <div class="image-count" *ngIf="project.images && project.images.length > 0">
+                    {{project.images.length}} images
+                  </div>
+                </div>
+              </div>
+            }
+          </div>
+        </div>
+      }
+    }
+  </div>
+</div>
